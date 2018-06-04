@@ -91,7 +91,7 @@ _seal(unsigned long duration, const char *message, FILE *outfile)
         printf("This computer can do about %lu decryptions per seconds "
                 "of %lu blocks of 16 bytes.\n"
                 "So we will encrypt %lu times to make it last %lu seconds"
-                "to decrypt.",
+                "to decrypt.\n",
                 itercount, bufsize / BLOCKSIZE,
                 itercount * duration, duration);
         itercount *= duration;
