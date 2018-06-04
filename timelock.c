@@ -70,6 +70,7 @@ _seal(unsigned long duration, const char *message, FILE *outfile)
         uint8_t *buf;
         size_t msglen, bufsize;
         struct AES_ctx ctx;
+        struct timeval tv1, tv2;
 
         msglen = strlen(message);
         bufsize = BLOCK_ALIGN(msglen);
@@ -110,13 +111,15 @@ _seal(unsigned long duration, const char *message, FILE *outfile)
         bzero(buf, bufsize);
         memcpy(buf, message, msglen + 1);
 
+        gettimeofday(&tv1, NULL);
         stop = 0;
-        alarm(duration);
         while (itercount-- > 0) {
                 // Seems to be mangled by AES_CBC_encrypt_buffer().
                 AES_init_ctx_iv(&ctx, key, iv);
                 AES_CBC_encrypt_buffer(&ctx, buf, bufsize);
         }
+        gettimeofday(&tv2, NULL);
+        printf("Sealing took %lu seconds.\n", tv2.tv_sec - tv1.tv_sec);
 
         /* XXX Check return value. */
         fwrite(&hdr, sizeof (hdr), 1, outfile);
@@ -130,6 +133,7 @@ _open(FILE *infile)
         uint8_t *buf;
         size_t bufsize;
         struct AES_ctx ctx;
+        struct timeval tv1, tv2;
 
         /* XXX Check return value. */
         fread(&hdr, sizeof (hdr), 1, infile);
@@ -147,12 +151,15 @@ _open(FILE *infile)
         /* XXX Check return value. */
         fread(buf, bufsize, 1, infile);
 
+        gettimeofday(&tv1, NULL);
         itercount = hdr.itercount;
         while (itercount-- > 0) {
                 // Seems to be mangled by AES_CBC_decrypt_buffer().
                 AES_init_ctx_iv(&ctx, key, iv);
                 AES_CBC_decrypt_buffer(&ctx, buf, bufsize);
         }
+        gettimeofday(&tv2, NULL);
+        printf("Message opened in %lu seconds.\n", tv2.tv_sec - tv1.tv_sec);
         printf("Message:\n%s\n", (char *)buf);
 }
 
