@@ -14,8 +14,10 @@
 #define CBC 1
 #include "aes.h"
 
-#define SIGNATURE   "Wait a bit!!!!!"       /* 16 bytes with final \0 */
+/* This contains the on-disk format version as well.*/
+#define SIGNATURE   "Wait a bit! 1.0"       /* 16 bytes with final \0 */
 #define BLOCKSIZE   16
+#define TESTPERIOD  10                      /* seconds */
 #define BLOCK_ALIGN(len)    (((len / BLOCKSIZE) + 1) * BLOCKSIZE)
 
 struct __attribute__((__packed__)) header {
@@ -73,16 +75,18 @@ _seal(unsigned long duration, const char *message, FILE *outfile)
         if (signal(SIGALRM, &_alarm) == SIG_ERR)
                 err(1, "signal");
 
+        printf("Measuring decryption speed for %u seconds...\n", TESTPERIOD);
         /* Measure how many dercyption cycles we can do in one second. */
         stop = 0;
         itercount = 0;
-        alarm(1);
+        alarm(TESTPERIOD);
         while (!stop) {
                 // Seems to be mangled by AES_CBC_decrypt_buffer().
                 AES_init_ctx_iv(&ctx, key, iv);
                 AES_CBC_decrypt_buffer(&ctx, buf, bufsize);
                 itercount++;
         }
+        itercount /= TESTPERIOD;
 
         printf("This computer can do about %lu decryptions per seconds "
                 "of %lu blocks of 16 bytes.\n"
@@ -126,9 +130,9 @@ _open(FILE *infile)
         fread(&hdr, sizeof (hdr), 1, infile);
         if (strcmp(hdr.magic, SIGNATURE) != 0)
                 errx(2, "File doesn't have the right signature.");
-        printf("itercount = %lu\n", hdr.itercount);
-        printf("msglen = %u\n", hdr.msglen);
-        printf("duration = %u\n", hdr.duration);
+        printf("Iteration count = %lu\n", hdr.itercount);
+        printf("Message length = %u\n", hdr.msglen);
+        printf("Originally requested duration = %u\n", hdr.duration);
 
         bufsize = BLOCK_ALIGN(hdr.msglen);
         buf = malloc(bufsize);
