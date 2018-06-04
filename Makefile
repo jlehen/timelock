@@ -5,15 +5,15 @@ INCLUDE_PATH = /usr/lib/avr/include
 # splint static check
 SPLINT       = splint test.c aes.c -I$(INCLUDE_PATH) +charindex -unrecog
 
-seal: seal.o aes.o
+timelock: timelock.o aes.o
 	$(CC) $(CFLAGS) -o $@ $>
 
-seal.o: seal.c aes.h
+timelock.o: timelock.c aes.h
 
 aes.o: aes.c aes.h
 
 clean:
-	rm -f seal
+	rm -f timelock
 	rm -f *.o *.gch *.out *.hex *.map
 
 lint:
