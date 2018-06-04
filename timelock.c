@@ -35,6 +35,7 @@ const uint8_t key[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 
 const char *progname;
 int stop;
+uint64_t itercount;
 
 static void
 _usage(const char *error)
@@ -57,12 +58,17 @@ _alarm()
 }
 
 static void
+_info()
+{
+        printf("%lu iteration remaining...\n", itercount);
+}
+
+static void
 _seal(unsigned long duration, const char *message, FILE *outfile)
 {
         struct header hdr;
         uint8_t *buf;
         size_t msglen, bufsize;
-        uint64_t itercount;
         struct AES_ctx ctx;
 
         msglen = strlen(message);
@@ -122,7 +128,6 @@ _open(FILE *infile)
 {
         struct header hdr;
         uint8_t *buf;
-        uint64_t itercount;
         size_t bufsize;
         struct AES_ctx ctx;
 
@@ -162,6 +167,8 @@ main(int argc, char *argv[])
         if (argc < 2)
                 _usage(NULL);
 
+        if (signal(SIGINFO, &_info) == SIG_ERR)
+                err(1, "signal");
         if (strcmp(argv[1], "seal") == 0) {
                 if (argc < 5)
                         _usage("Missing arguments.");
