@@ -90,7 +90,7 @@ _seal(unsigned long duration, const char *message, FILE *outfile)
 
         printf("This computer can do about %lu decryptions per seconds "
                 "of %lu blocks of 16 bytes.\n"
-                "So we will encrypt %lu times to make it last %lu seconds"
+                "So we will encrypt %lu times to make it last %lu seconds "
                 "to decrypt.\n",
                 itercount, bufsize / BLOCKSIZE,
                 itercount * duration, duration);
@@ -132,7 +132,7 @@ _open(FILE *infile)
                 errx(2, "File doesn't have the right signature.");
         printf("Iteration count = %lu\n", hdr.itercount);
         printf("Message length = %u\n", hdr.msglen);
-        printf("Originally requested duration = %u\n", hdr.duration);
+        printf("Originally requested duration = %u seconds\n", hdr.duration);
 
         bufsize = BLOCK_ALIGN(hdr.msglen);
         buf = malloc(bufsize);
