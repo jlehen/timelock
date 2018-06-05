@@ -2,12 +2,16 @@ This program seals away a message which will take some configurable duration
 to open.
 
 Usage:
-    ./timelock seal <duration> <message> <outfile>
-    ./timelock open <sealed_file>
+```
+./timelock seal <duration> <message> <outfile>
+./timelock open <sealed_file>
 <duration> is expressed in seconds.
+```
 
 
 Example:
+
+```
 $ time ./timelock seal 20 "hello world" hello.sealed
 Measuring decryption speed for 10 seconds...
 This computer can do about 33277 decryptions per seconds of 1 blocks of 16 bytes.
@@ -27,4 +31,4 @@ hello world
 real    0m20.324s
 user    0m20.321s
 sys     0m0.001s
-
+```
